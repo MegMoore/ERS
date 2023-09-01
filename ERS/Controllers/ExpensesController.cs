@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ERS.Data;
 using ERS.Models;
+using Azure.Core;
 
 namespace ERS.Controllers
 {
@@ -29,7 +30,10 @@ namespace ERS.Controllers
           {
               return NotFound();
           }
-            return await _context.Expenses.Include(x => x.Employee).ToListAsync();
+
+
+            return await _context.Expenses.Include(x=>x.Employee).ToListAsync();
+
         }
 
         // GET: api/Expenses/5
@@ -40,7 +44,10 @@ namespace ERS.Controllers
           {
               return NotFound();
           }
-            var expense = await _context.Expenses.Include(x => x.Employee).Where(x => x.ID == id).FirstOrDefaultAsync();
+
+
+            var expense = await _context.Expenses.Include(x=>x.Employee).Where(x=>x.ID==id).FirstOrDefaultAsync();
+
 
             if (expense == null)
             {
@@ -152,6 +159,46 @@ namespace ERS.Controllers
             return NoContent();
         }
 
+        //-----------------------------------------------------------------------------------------------------------------
+        [HttpPut("review/{id}")]
+        public async Task<IActionResult> Review(int id, Expense E) {
+            if (E.Total <= 75) {
+                E.Status = "APPROVED";
+                var emp = await _context.Employees.FindAsync(id);
+                E.Employee = emp;
+                E.Employee!.ExpensesDue += E.Total;
+                return await PutExpense(id, E);
+            }
+            E.Status = "REVIEW";
+            return await PutExpense(id, E);
+        }
+
+        [HttpPut("approve/{id}")]
+        public async Task<IActionResult> Approve(int id, Expense E) {
+            E.Status = "APPROVED";
+            var emp = await _context.Employees.FindAsync(id);
+            E.Employee = emp;
+            E.Employee!.ExpensesDue += E.Total;
+            return await PutExpense(id, E);
+        }
+
+        [HttpPut("reject/{id}")]
+        public async Task<IActionResult> Reject(int id, Expense E) {
+                E.Status = "REJECTED";
+                return await PutExpense(id, E);
+        }
+
+        [HttpPut("pay/{id}")]
+        public async Task<IActionResult> Pay(int id, Expense E) {
+            var Emp = await _context.Employees.FindAsync(id);
+            E.Employee = Emp;
+            E.Status = "PAID";
+            E.Employee!.ExpensesPaid += E.Total;
+            E.Employee!.ExpensesDue -= E.Total;
+            return await PutExpense(id, E);
+        }
+
+        //-------------------------------------------------------------------------------------------------------------------
         private bool ExpenseExists(int id)
         {
             return (_context.Expenses?.Any(e => e.ID == id)).GetValueOrDefault();
