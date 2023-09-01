@@ -15,5 +15,6 @@ namespace ERS.Data
         }
 
         public DbSet<ERS.Models.Employee> Employees { get; set; } = default!;
+        public DbSet<Expense> Expenses { get; set; } = default!;
     }
 }
