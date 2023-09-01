@@ -40,7 +40,7 @@ namespace ERS.Controllers
           {
               return NotFound();
           }
-            var expense = await _context.Expenses.FindAsync(id);
+            var expense = await _context.Expenses.Include(x => x.Employee).Where(x => x.ID == id).FirstOrDefaultAsync();
 
             if (expense == null)
             {
@@ -68,39 +68,21 @@ namespace ERS.Controllers
                           .ToListAsync();
         }
 
+        //[GEt: /api/expenses/review]
 
-        //[PUT: /api/expenses/pay/{expenseId}]
-        [HttpPut("{expenseId}")]
-        public async Task<IActionResult> PayExpense(int id, Expense expense)
+        [HttpGet("REVIEW")]
+        public async Task<ActionResult<IEnumerable<Expense>>> GetExpensesInReview()
         {
-            expense.Status = "PAID";
-            return await PutExpense(id, expense);
-
-            var paid = 
-
+            if (_context.Expenses == null)
+            {
+                return NotFound();
+            }
+            return await _context.Expenses
+                          .Where(x => x.Status == "REVIEW")
+                          .Include(x => x.Employee)
+                          .ToListAsync();
         }
 
-
-
-        // Update Employees Expenses Due and Paid
-        private async Task UpdateEmployeeExpenseDueAndPaid(int id)
-        {
-            var total = (from e in _context.Expenses
-                         join el in _context.Expenselines
-                             on e.ID equals el.ExpenseId
-                         join i in _context.Items
-                             on el.ItemId equals i.Id
-                         where e.ID == id
-                         select new
-                         {
-                             ExpenseTotal = el.Quantity * i.Price
-                         }).Sum(x => x.ExpenseTotal);
-            var order = await _context.Expenses.FindAsync(id);
-            order!.Total = total;
-            await _context.SaveChangesAsync();
-
-
-        }
 
         //************************************************//
 
