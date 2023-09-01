@@ -146,7 +146,15 @@ namespace ERS.Controllers
                 return await PutExpense(id, E);
         }
 
-
+        [HttpPut("pay/{id}")]
+        public async Task<IActionResult> Pay(int id, Expense E) {
+            var Emp = await _context.Employees.FindAsync(id);
+            E.Employee = Emp;
+            E.Status = "PAID";
+            E.Employee!.ExpensesPaid += E.Total;
+            E.Employee!.ExpensesDue -= E.Total;
+            return await PutExpense(id, E);
+        }
 
         //-------------------------------------------------------------------------------------------------------------------
         private bool ExpenseExists(int id)
