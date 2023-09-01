@@ -29,7 +29,7 @@ namespace ERS.Controllers
           {
               return NotFound();
           }
-            return await _context.Expenses.ToListAsync();
+            return await _context.Expenses.Include(x => x.Employee).ToListAsync();
         }
 
         // GET: api/Expenses/5
