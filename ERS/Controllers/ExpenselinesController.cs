@@ -59,12 +59,12 @@ namespace ERS.Controllers
             {
                 return BadRequest();
             }
-            if (expenselines.Quantity <= 0)
-            {
-                return Problem("Quanity cannot be more than 0!");
-            }
-            _context.Entry(expenselines).State = EntityState.Modified;
 
+            _context.Entry(expenselines).State = EntityState.Modified;
+            if(expenselines.Quantity <= 0)
+            {
+                return Problem("Quantity Cannot be less than 0!");
+            }
             try
             {
                 await _context.SaveChangesAsync();
@@ -93,10 +93,6 @@ namespace ERS.Controllers
           {
               return Problem("Entity set 'ERSContext.Expenselines'  is null.");
           }
-          if(expenselines.Quantity <= 0)
-            {
-                return Problem("Quantity cannot be less than 1!");
-            }
             _context.Expenselines.Add(expenselines);
             await _context.SaveChangesAsync();
 
