@@ -12,14 +12,32 @@ namespace ERS.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+
     public class ExpenselinesController : ControllerBase
     {
         private readonly ERSContext _context;
+
 
         public ExpenselinesController(ERSContext context)
         {
             _context = context;
         }
+        private async Task RecalculateExpenseTotal(int expenseId)
+        {
+         var result = (from e in _context.Expenses
+                          join el in _context.Expenselines
+                          on e.ID equals el.ExpenseId
+                          join i in _context.Items
+                          on el.ItemId equals i.Id
+                          where e.ID == expenseId
+                          select new
+                          {
+                              lineTotals = e.Total + el.Quantity
+                          }).Sum(x => x.lineTotals);
+            var expense = await _context.Expenses.FindAsync(expenseId);
+            expense!.Total = result;
+            await _context.SaveChangesAsync(); 
+    }
 
         // GET: api/Expenselines
         [HttpGet]
@@ -41,12 +59,12 @@ namespace ERS.Controllers
               return NotFound();
           }
             var expenselines = await _context.Expenselines.FindAsync(id);
+            
 
             if (expenselines == null)
             {
                 return NotFound();
             }
-
             return expenselines;
         }
 
@@ -63,11 +81,12 @@ namespace ERS.Controllers
             _context.Entry(expenselines).State = EntityState.Modified;
             if(expenselines.Quantity <= 0)
             {
-                return Problem("Quantity Cannot be less than 0!");
+                return Problem("Quantity Cannot be less than 1!");
             }
             try
             {
                 await _context.SaveChangesAsync();
+                await RecalculateExpenseTotal(expenselines.ExpenseId);
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -93,9 +112,13 @@ namespace ERS.Controllers
           {
               return Problem("Entity set 'ERSContext.Expenselines'  is null.");
           }
+          if (expenselines.Quantity <= 0)
+          {
+              return Problem("Quantity Cannot be less than 1!");
+          }
             _context.Expenselines.Add(expenselines);
             await _context.SaveChangesAsync();
-
+            await RecalculateExpenseTotal(expenselines.ExpenseId);
             return CreatedAtAction("GetExpenselines", new { id = expenselines.Id }, expenselines);
         }
 
@@ -112,10 +135,11 @@ namespace ERS.Controllers
             {
                 return NotFound();
             }
+            var expenseId = expenselines.ExpenseId;
 
             _context.Expenselines.Remove(expenselines);
             await _context.SaveChangesAsync();
-
+            await RecalculateExpenseTotal(expenseId);
             return NoContent();
         }
 
