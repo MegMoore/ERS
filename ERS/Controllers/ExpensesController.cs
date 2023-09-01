@@ -51,6 +51,42 @@ namespace ERS.Controllers
             return expense;
         }
 
+        //Added Method
+        //************************************************//
+
+        //[GEt: /api/expenses/approved]
+
+        [HttpGet("APPROVED")]
+        public async Task<ActionResult<IEnumerable<Expense>>> GetApprovedExpenses()
+        {
+            if (_context.Expenses == null)
+            {
+                return NotFound();
+            }
+            return await _context.Expenses
+                          .Where(x => x.Status == "APPROVED")
+                          .Include(x => x.Employee)
+                          .ToListAsync();
+        }
+
+        //[GEt: /api/expenses/review]
+
+        [HttpGet("REVIEW")]
+        public async Task<ActionResult<IEnumerable<Expense>>> GetExpensesInReview()
+        {
+            if (_context.Expenses == null)
+            {
+                return NotFound();
+            }
+            return await _context.Expenses
+                          .Where(x => x.Status == "REVIEW")
+                          .Include(x => x.Employee)
+                          .ToListAsync();
+        }
+
+
+        //************************************************//
+
         // PUT: api/Expenses/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
