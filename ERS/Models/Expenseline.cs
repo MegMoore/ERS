@@ -2,7 +2,7 @@
 
 namespace ERS.Models
 {
-    public class Expenselines
+    public class Expenseline
     {
         public int Id { get; set; }
         public int Quantity { get; set; }

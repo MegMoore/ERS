@@ -23,7 +23,7 @@ namespace ERS.Controllers
 
         // GET: api/Expenselines
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Expenselines>>> GetExpenselines()
+        public async Task<ActionResult<IEnumerable<Expenseline>>> GetExpenselines()
         {
           if (_context.Expenselines == null)
           {
@@ -34,7 +34,7 @@ namespace ERS.Controllers
 
         // GET: api/Expenselines/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Expenselines>> GetExpenselines(int id)
+        public async Task<ActionResult<Expenseline>> GetExpenselines(int id)
         {
           if (_context.Expenselines == null)
           {
@@ -53,7 +53,7 @@ namespace ERS.Controllers
         // PUT: api/Expenselines/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutExpenselines(int id, Expenselines expenselines)
+        public async Task<IActionResult> PutExpenselines(int id, Expenseline expenselines)
         {
             if (id != expenselines.Id)
             {
@@ -87,7 +87,7 @@ namespace ERS.Controllers
         // POST: api/Expenselines
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Expenselines>> PostExpenselines(Expenselines expenselines)
+        public async Task<ActionResult<Expenseline>> PostExpenselines(Expenseline expenselines)
         {
           if (_context.Expenselines == null)
           {
