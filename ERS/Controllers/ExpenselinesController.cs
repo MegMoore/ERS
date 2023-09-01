@@ -81,7 +81,7 @@ namespace ERS.Controllers
             _context.Entry(expenselines).State = EntityState.Modified;
             if(expenselines.Quantity <= 0)
             {
-                return Problem("Quantity Cannot be less than 0!");
+                return Problem("Quantity Cannot be less than 1!");
             }
             try
             {
@@ -114,7 +114,7 @@ namespace ERS.Controllers
           }
           if (expenselines.Quantity <= 0)
           {
-              return Problem("Quantity Cannot be less than 0!");
+              return Problem("Quantity Cannot be less than 1!");
           }
             _context.Expenselines.Add(expenselines);
             await _context.SaveChangesAsync();
