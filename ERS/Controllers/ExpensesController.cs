@@ -21,6 +21,29 @@ namespace ERS.Controllers
         {
             _context = context;
         }
+        private async Task UpdateEmployeeExpensesDueAndPaid(int id)
+        {
+            var resPaid = (from exp in _context.Expenses
+                           join emp in _context.Employees
+                           on exp.EmployeeID equals emp.Id
+                           where emp.Id == id && exp.Status == "PAID"
+                           select new
+                           {
+                               exp.Total
+                           }).Sum(x => x.Total);
+            var resDue = (from exp in _context.Expenses
+                          join emp in _context.Employees
+                          on exp.EmployeeID equals emp.Id
+                          where emp.Id == id && exp.Status != "PAID"
+                          select new
+                          {
+                              exp.Total
+                          }).Sum(x => x.Total);
+            var employee = await _context.Employees.FindAsync(id);
+            employee.ExpensesPaid = resPaid;
+            employee.ExpensesDue = resDue;
+            await _context.SaveChangesAsync(); 
+        }
 
         // GET: api/Expenses
         [HttpGet]
