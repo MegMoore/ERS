@@ -50,6 +50,60 @@ namespace ERS.Controllers
             return expense;
         }
 
+        //Added Method
+        //************************************************//
+
+        //[GEt: /api/expenses/approved]
+
+        [HttpGet("APPROVED")]
+        public async Task<ActionResult<IEnumerable<Expense>>> GetApprovedExpenses()
+        {
+            if (_context.Expenses == null)
+            {
+                return NotFound();
+            }
+            return await _context.Expenses
+                          .Where(x => x.Status == "APPROVED")
+                          .Include(x => x.Employee)
+                          .ToListAsync();
+        }
+
+
+        //[PUT: /api/expenses/pay/{expenseId}]
+        [HttpPut("{expenseId}")]
+        public async Task<IActionResult> PayExpense(int id, Expense expense)
+        {
+            expense.Status = "PAID";
+            return await PutExpense(id, expense);
+
+            var paid = 
+
+        }
+
+
+
+        // Update Employees Expenses Due and Paid
+        private async Task UpdateEmployeeExpenseDueAndPaid(int id)
+        {
+            var total = (from e in _context.Expenses
+                         join el in _context.Expenselines
+                             on e.ID equals el.ExpenseId
+                         join i in _context.Items
+                             on el.ItemId equals i.Id
+                         where e.ID == id
+                         select new
+                         {
+                             ExpenseTotal = el.Quantity * i.Price
+                         }).Sum(x => x.ExpenseTotal);
+            var order = await _context.Expenses.FindAsync(id);
+            order!.Total = total;
+            await _context.SaveChangesAsync();
+
+
+        }
+
+        //************************************************//
+
         // PUT: api/Expenses/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
