@@ -135,9 +135,9 @@ namespace ERS.Controllers
             {
                 return NotFound();
             }
+            var expenseId = expenselines.ExpenseId;
 
             _context.Expenselines.Remove(expenselines);
-            var expenseId = expenselines.ExpenseId;
             await _context.SaveChangesAsync();
             await RecalculateExpenseTotal(expenseId);
             return NoContent();
